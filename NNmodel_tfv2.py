@@ -50,6 +50,11 @@ val_pq_path   = "numerai_validation_data_int8.parquet"
 df_train = pd.read_parquet('Numerai/data/numerai_training_data_int8.parquet')  
 df_val   = pd.read_parquet('Numerai/data/numerai_validation_data_int8.parquet') 
 
+# subsampling  as eras are overlaping
+eras = [i for i in range(1, len(df_train.era.unique())+1, 4)]
+df_train = df_train[df_train.era.astype(int).isin(eras)]
+gc.collect()       
+
 # %% Features names and eras
 features = [c for c in df_train if c.startswith("feature")]
 features_erano = features + ["erano"]
@@ -58,7 +63,6 @@ targets = [c for c in df_train if c.startswith("target")]
 # not used here, times series disabled
 # cast era time from string to integer and store in df
 df_train["erano"] = df_train.era.astype(int)
-eras = df_train.erano
 df_val["erano"] = df_val.era.astype(int)
 
 print(f"Loaded {len(features)} features colum names")
